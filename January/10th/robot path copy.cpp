@@ -19,15 +19,6 @@ void check(ll& x) {
     } else if (x > 1e9) x = (x - 1e9);
 }
 
-void move(char& move, ll& w, ll& h) {
-    if (move == 'N') h--;
-    else if (move == 'S') h++;
-    else if (move == 'W') w--;
-    else if (move == 'E') w++;
-
-    check(w), check(h);
-}
-
 void keep(char& move, Dir& d) {
     if (move == 'N') d.N++;
     else if (move == 'E') d.E++;
