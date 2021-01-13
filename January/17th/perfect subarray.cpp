@@ -4,7 +4,7 @@ using namespace std;
 using vi = vector<int>;
 
 void solution() {
-    int ans = 0;
+    long long ans = 0;
     int N;
     cin >> N;
     vector<int> nums(N);
