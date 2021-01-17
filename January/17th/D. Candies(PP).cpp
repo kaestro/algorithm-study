@@ -2,68 +2,72 @@
 #include<cstring>
 #include<algorithm>
 #include<vector>
-#include<unordered_map>
+#include<map>
 #include<set>
-#include<queue>
 using namespace std;
 using ll = long long;
-const int MAX_N = 26;
+const int MAX_N = 2e5+5;
+struct seg_tree {
+	ll v_tree[(MAX_N + 1) * 2] = {};
+	int type;
+	size_t n;
+
+	void build() {
+		for (int i = n - 1; i; i--)
+			v_tree[i] = v_tree[i << 1] + v_tree[i << 1 | 1];
+	}
+	ll query(int l, int r) {
+		ll res = 0;
+		for (l += n, r += n; l <= r; l >>= 1, r >>= 1) {
+			if (l & 1) res += v_tree[l++];
+			if (r % 2 == 0) res += v_tree[r--];
+		}
+		return res;
+	}
+
+	void update(int idx, ll d) {
+		if (type == 1)
+			v_tree[idx + n] = (idx % 2 ? -1 : 1) * d;
+		else
+			v_tree[idx + n] = (idx % 2 ? -1 : 1) * d * (idx + 1);
+		for (idx += n; idx > 1; idx >>= 1)
+			v_tree[idx >> 1] = v_tree[idx] + v_tree[idx ^ 1];
+	}
+}asc, mono;
+
 int main() {
-	char b[30][31], ans[27];
-	int T, tc, i, j, k, R, C, dy[] = { 0,0,1,-1 }, dx[] = { 1,-1,0,0 }, ind[26], cnt, tot, valid[26];
-	bool vi[30][30];
-	set<int> adj[MAX_N];
-	queue<pair<int, int>> q;
-	queue<int> toq;
+	asc.type = 2, mono.type = 1;
+
+	int T, tc, N, Q, i, A, X, V, L, R;
+	ll ans;
+	char q;
 	scanf("%d", &T);
 	for (tc = 1; tc <= T; tc++) {
-		scanf("%d%d\n", &R, &C);
-		for (i = 0; i < 26; i++) {
-			adj[i].clear();
-			valid[i] = ind[i] = 0;
+		scanf("%d%d", &N, &Q);
+		asc.n = mono.n = N;
+		for (i = 0; i < N; i++) {
+			scanf("%d\n", &A);
+			asc.v_tree[N + i] = A * (i % 2 ? -1 : 1) * (i + 1);
+			mono.v_tree[N + i] = A * (i % 2 ? -1 : 1);
 		}
-		cnt = tot = 0;
-		memset(vi, 0, sizeof vi);
+		asc.build(); mono.build();
 
-		for (i = 0; i < R; i++) scanf("%s", b[i]);
-		for (i = 0; i < R; i++)
-			for (j = 0; j < C; j++) if (!vi[i][j]) {
-				valid[b[i][j] - 'A'] = 1;
-				vi[i][j] = 1;
-				q.push({ i, j });
-				while (!q.empty()) {
-					auto u = q.front(); q.pop();
-					for (k = 0; k < 4; k++) {
-						int ty = u.first + dy[k], tx = u.second + dx[k];
-						if (0 <= ty && ty < R && 0 <= tx && tx < C) {
-							if (b[u.first][u.second] != b[ty][tx]) {
-								if (k == 3) adj[b[u.first][u.second] - 'A'].insert(b[ty][tx] - 'A');
-							}
-							else if (!vi[ty][tx]) {
-								vi[ty][tx] = 1;
-								q.push({ ty, tx });
-							}
-						}
-					}
-				}
+		ans = 0;
+		while (Q--) {
+			scanf("%c", &q);
+			if (q == 'Q') {
+				scanf("%d%d\n", &L, &R);
+				L--, R--;
+				ans += (L % 2 ? -1 : 1) * (asc.query(L, R) - L * mono.query(L, R));
 			}
-		for (i = 0; i < 26; i++) {
-			tot += valid[i];
-			for (const int& v : adj[i]) ind[v]++;
-		}
-		for (i = 0; i < 26; i++) if (!ind[i] && valid[i])
-			toq.push(i);
-		while (!toq.empty()) {
-			int u = toq.front(); toq.pop();
-			ans[cnt++] = u + 'A';
-			for (const int& v : adj[u]) {
-				ind[v]--;
-				if (!ind[v]) toq.push(v);
+			else {
+				scanf("%d%d\n", &X, &V);
+				X--;
+				asc.update(X, V);
+				mono.update(X, V);
 			}
 		}
-		ans[cnt] = 0;
-		if (cnt == tot) printf("Case #%d: %s\n", tc, ans);
-		else printf("Case #%d: -1\n", tc);
+		printf("Case #%d: %lld\n", tc, ans);
 	}
 	return 0;
 }
