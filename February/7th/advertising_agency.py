@@ -1,8 +1,7 @@
 from collections import Counter
 from math import comb
 def advertising_agency (lst, k):
-    s = set(lst)
-    s = list(s)
+    s = list(set(lst))
     s.sort()
     s = s[::-1]
 
@@ -10,8 +9,6 @@ def advertising_agency (lst, k):
     result = 1
     i = 0
 
-    print(d)
-    print(s)
     while k > 0:
         n = d[s[i]]
         if k >= n:
