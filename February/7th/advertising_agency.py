@@ -31,5 +31,5 @@ n = int(input())
 for i in range(n):
     input1 = [int(x) for x in input().split()]
     input2 = [int(x) for x in input().split()]
-    print(advertising_agency(input2,input1[1]))
+    print("Case #{}: {}".format(i,kick_start(input())))
 
